@@ -13,6 +13,37 @@ def extract_rdf(doc):
     return RDFtriple
 
 
+html_page = """
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+
+<h2>RDF Triples:</h2>
+
+<table>
+<tr>
+    <th>SENTENCE:</th>
+    <th>RDF TRIPLE:</th>
+</tr>
+"""
+
 nlp = spacy.load("en")
 
 with open('../Texts/test.txt') as text:
@@ -24,7 +55,6 @@ with open('../Texts/test.txt') as text:
         if len(sentence) < 1:
             pass
         else:
-            print("\n'" + sentence + ".'")
             doc = nlp(sentence)
             nounchunklist = [str(chunk.text).strip() for chunk in doc.noun_chunks]
             entitylist = []
@@ -43,6 +73,31 @@ with open('../Texts/test.txt') as text:
                     label = labeldic[property_value]
                 else:
                     label = 'X'
+                old_property = property
                 property = property + " (" + label + ")"
-                FinalRDFTriple = (entity, property, property_value)
-                print(FinalRDFTriple)
+                FinalRDFTriple = "<<font color='red'>{0}</font>, <font color='green'>{1}</font>, <font color='blue'>{2}</font>>".format(entity, property, property_value)
+                print("\n" + sentence)
+                print(entity, property, property_value)
+                old_sentence = sentence
+                sentence = sentence.replace(entity, "<font color='red'>{}</font>".format(entity))
+                if old_property in sentence:
+                    sentence = sentence.replace(old_property, "<font color='green'>{}</font>".format(old_property))
+                else:
+                    new_sentence = ""
+                    for word in sentence.split(" "):
+                        if word in old_property.split():
+                            word = word.replace(word, "<font color='green'>{}</font>".format(word))
+                        new_sentence += word
+                        new_sentence += " "
+                    sentence = new_sentence
+                sentence = sentence.replace(property_value, "<font color='blue'>{}</font>".format(property_value))
+                if sentence[-1] == " ":
+                    sentence = sentence[:-1]
+                sentence += "."
+                html_page += "<tr><th>{0}</th><th>{1}</th></tr>".format(sentence, FinalRDFTriple)
+                sentence = old_sentence
+
+html_page += "<table><body><html>"
+Html_file= open("output.html","w")
+Html_file.write(html_page)
+Html_file.close()
