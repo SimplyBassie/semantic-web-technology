@@ -3,11 +3,13 @@ from spacy import displacy
 from collections import Counter
 import en_core_web_sm
 nlp = en_core_web_sm.load()
+#nlp = spacy.load("en") #takes longer
 import sys
 import requests
 import re
+import plac
 
-def subtree_matcher(doc, entitylist, labeldic, personlist):
+def subtree_matcher(doc, entitylist, labeldic, personlist, nounchunklist):
     x = ''
     y = ''
     z = ''
@@ -35,13 +37,27 @@ def subtree_matcher(doc, entitylist, labeldic, personlist):
         z = z + ": " + labeldic[x]
 
     if len(y) == 0:
-        for person in personlist:
+        if len(personlist) > 0:
+            mylist = personlist
+        else:
+            if len(entitylist) > 0:
+                mylist = entitylist
+            else:
+                mylist = nounchunklist
+        for person in mylist:
             if person.lower() not in x.lower() and x.lower() not in person.lower():
                 y = person
                 break
     return y,z,x
 
-sentences = "Adolf Hitler died in Berlin. Adolf Hitler was born in 2000. Adolf Hitler died on October 11, 2019. Adolf Hitler was born in Austria."
+
+sentences = """
+Adolf Hitler was born in Austria.
+In 1999 Hitler was born.
+Hitler died on October 11, 2019.
+In Germany, Adolf Hitler died.
+Barrack Obama was born in Hawaii in the year 1961.
+"""
 sentences = sentences.strip()
 sentencelist = sentences.split(".")
 for sentence in sentencelist:
@@ -49,6 +65,7 @@ for sentence in sentencelist:
         pass
     else:
         doc = nlp(sentence)
+        nounchunklist = [str(chunk.text).strip() for chunk in doc.noun_chunks]
         entitylist = []
         labeldic = {}
         personlist = []
@@ -57,7 +74,7 @@ for sentence in sentencelist:
             labeldic[str(word)] = str(word.label_)
             if word.label_ == 'PERSON':
                 personlist.append(str(word))
-        RDFtriple = subtree_matcher(doc, entitylist, labeldic, personlist)
+        RDFtriple = subtree_matcher(doc, entitylist, labeldic, personlist, nounchunklist)
         print(sentence.strip() + ".")
         print(RDFtriple)
         print()
