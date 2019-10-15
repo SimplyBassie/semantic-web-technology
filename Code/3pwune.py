@@ -31,6 +31,14 @@ td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
+div{
+  text-align: center;
+  display: inline-block;
+  margin: 0;
+  font-style: italic;
+}
+
 </style>
 </head>
 <body>
@@ -45,14 +53,16 @@ tr:nth-child(even) {
 """
 
 nlp = spacy.load("en")
+printsentencelist = []
 
 with open('../Texts/test.txt') as text:
     sentences = text.read()
     sentences = sentences.strip()
     sentencelist = sentences.split(".")
     for sentence in sentencelist:
+        rdftriplefound = False
         sentence = sentence.strip()
-        if len(sentence) < 1:
+        if len(sentence) < 4:
             pass
         else:
             doc = nlp(sentence)
@@ -91,13 +101,20 @@ with open('../Texts/test.txt') as text:
                         new_sentence += " "
                     sentence = new_sentence
                 sentence = sentence.replace(property_value, "<font color='blue'>{}</font>".format(property_value))
-                if sentence[-1] == " ":
-                    sentence = sentence[:-1]
+                sentence = sentence.rstrip()
                 sentence += "."
                 html_page += "<tr><th>{0}</th><th>{1}</th></tr>".format(sentence, FinalRDFTriple)
+                printsentencelist.append(sentence)
+                rdftriplefound = True
                 sentence = old_sentence
+        if not rdftriplefound:
+            sentence += "."
+            printsentencelist.append(sentence)
 
-html_page += "<table><body><html>"
-Html_file= open("output.html","w")
-Html_file.write(html_page)
-Html_file.close()
+    if printsentencelist[-1] == ".":
+        printsentencelist = printsentencelist[:-1]
+    html_page += "<table><body><html>"
+    html_page += "<div><h4>" + '"' + (" ").join(printsentencelist) + '"' + "</h4></div>"
+    Html_file= open("output.html","w")
+    Html_file.write(html_page)
+    Html_file.close()
