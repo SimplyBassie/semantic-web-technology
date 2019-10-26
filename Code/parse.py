@@ -1,9 +1,12 @@
 import spacy
-from spacy import displacy
 
 nlp = spacy.load("en_core_web_sm")
-with open('../Texts/adolf.txt') as text:
-    line = text.readline()
-    doc = nlp(line)
-    #displacy.serve(doc, style="ent")
-    displacy.serve(doc, style="dep")
+doc = nlp("Adolf Hitler was born on April 20, 1889. He worked at Apple Inc.")
+
+# ent.text, ent.start_char, ent.end_char, ent.label_
+
+entities = []
+
+for ent in doc.ents:
+    entities.append(ent.text)
+print(entities)

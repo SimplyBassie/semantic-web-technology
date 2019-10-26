@@ -1,4 +1,5 @@
 import spacy
+import webbrowser
 
 def extract_rdf(doc):
     RDFtriple = []
@@ -15,45 +16,33 @@ def extract_rdf(doc):
 
 html_page = """
 <head>
-<style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script>
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+$(document).ready(function(){
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
+$('[data-toggle="popover"]').popover({
+    html: true
+})
 
-div{
-  text-align: center;
-  display: inline-block;
-  margin: 0;
-  font-style: italic;
-}
+});
 
-</style>
+</script>
 </head>
 <body>
-
-<h2>RDF Triples:</h2>
-
-<table>
+<div class="container">
+<table class="table table-sm">
 <tr>
-    <th>SENTENCE:</th>
-    <th>RDF TRIPLE:</th>
+    <th>RDF Triple</th>
 </tr>
 """
 
 nlp = spacy.load("en")
 printsentencelist = []
+dictje = {}
 
 with open('../Texts/test.txt') as text:
     sentences = text.read()
@@ -78,14 +67,18 @@ with open('../Texts/test.txt') as text:
                 if word.label_ == 'PERSON':
                     personlist.append(str(word))
             RDFtriple = extract_rdf(doc)
+            for triple in RDFtriple:
+                dictje[triple] = sentence
+
             for entity, property, property_value in RDFtriple:
                 if property_value in labeldic:
                     label = labeldic[property_value]
                 else:
                     label = 'X'
                 old_property = property
+                HTMLTriple = (entity, property, property_value)
                 property = property + " (" + label + ")"
-                FinalRDFTriple = "<<font color='red'>{0}</font>, <font color='green'>{1}</font>, <font color='blue'>{2}</font>>".format(entity, property, property_value)
+                FinalRDFTriple = "<font color='red'>{0}</font>, <font color='green'>{1}</font>, <font color='blue'>{2}</font>".format(entity, property, property_value)
                 print("\n" + sentence)
                 print(entity, property, property_value)
                 old_sentence = sentence
@@ -103,7 +96,7 @@ with open('../Texts/test.txt') as text:
                 sentence = sentence.replace(property_value, "<font color='blue'>{}</font>".format(property_value))
                 sentence = sentence.rstrip()
                 sentence += "."
-                html_page += "<tr><th>{0}</th><th>{1}</th></tr>".format(sentence, FinalRDFTriple)
+                html_page += "<tr data-toggle='popover' data-trigger='hover' title='Original sentence' data-content='{}'><th>{}</th></tr>".format(dictje[HTMLTriple], FinalRDFTriple)
                 printsentencelist.append(sentence)
                 rdftriplefound = True
                 sentence = old_sentence
@@ -113,8 +106,12 @@ with open('../Texts/test.txt') as text:
 
     if printsentencelist[-1] == ".":
         printsentencelist = printsentencelist[:-1]
-    html_page += "<table><body><html>"
-    html_page += "<div><h4>" + '"' + (" ").join(printsentencelist) + '"' + "</h4></div>"
+    html_page += "<table></div>"
+    html_page += "<div><h6>" + '"' + (" ").join(printsentencelist) + '"' + "</h6></div>"
+    html_page += "<body><html>"
     Html_file= open("output.html","w")
     Html_file.write(html_page)
     Html_file.close()
+
+#filename = 'file:///Users/basgerding/Desktop/semantic-web-technology/Code/' + 'output.html'
+#webbrowser.open_new_tab(filename)
