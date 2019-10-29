@@ -1,5 +1,6 @@
 import spacy
 import webbrowser
+from translate_property import translate_property
 
 def extract_rdf(doc):
     RDFtriple = []
@@ -10,6 +11,7 @@ def extract_rdf(doc):
         preps = [prep for prep in ent.root.head.children if prep.dep_ == "prep"]
         for prep in preps:
             for child in prep.children:
+                property = "{} {}".format(ent.root.head, prep)
                 RDFtriple.append((ent.text, "{} {}".format(ent.root.head, prep), child.text))
     return RDFtriple
 
@@ -68,7 +70,7 @@ with open('../Texts/test.txt') as text:
                     personlist.append(str(word))
             RDFtriple = extract_rdf(doc)
             for triple in RDFtriple:
-                dictje[triple] = sentence
+                dictje[triple] = sentence + "."
 
             for entity, property, property_value in RDFtriple:
                 if property_value in labeldic:
@@ -78,6 +80,8 @@ with open('../Texts/test.txt') as text:
                 old_property = property
                 HTMLTriple = (entity, property, property_value)
                 property = property + " (" + label + ")"
+                propertyfound, property = translate_property(property)
+                #if propertyfound:
                 FinalRDFTriple = "<font color='red'>{0}</font>, <font color='green'>{1}</font>, <font color='blue'>{2}</font>".format(entity, property, property_value)
                 print("\n" + sentence)
                 print(entity, property, property_value)
