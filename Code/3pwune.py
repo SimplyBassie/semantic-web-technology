@@ -46,7 +46,7 @@ nlp = spacy.load("en")
 printsentencelist = []
 dictje = {}
 
-with open('../Texts/test.txt') as text:
+with open('../Texts/wilson.txt') as text:
     sentences = text.read()
     sentences = sentences.strip()
     sentencelist = sentences.split(".")

@@ -3,39 +3,75 @@ def translate_property(input_property):
     spacy_label = input_property.split("(")[1]
     spacy_label = spacy_label.split(")")[0]
 
-    #BIRTHPLACE
+    #BIRTH_PLACE
     birthplace_wordlist = ['born','birth']
     birthplace_spacy_labellist = ['GPE', 'LOC']
     for word in birthplace_wordlist:
         if word in input_property.lower() and spacy_label in birthplace_spacy_labellist:
-            output_property = "birthplace"
+            output_property = "birth_place"
             output_property_found = True
             break
 
-    #BIRTHDATE
+    #BIRTH_DATE
     birthdate_wordlist = ['born','birth']
     birthdate_spacy_labellist = ['DATE']
     for word in birthdate_wordlist:
         if word in input_property.lower() and spacy_label in birthdate_spacy_labellist:
-            output_property = "birthdate"
+            output_property = "birth_date"
             output_property_found = True
             break
 
-    #DEATHDATE
+    #DEATH_DATE
     deathdate_wordlist = ['die','died','death']
     deathdate_spacy_labellist = ['DATE']
     for word in deathdate_wordlist:
         if word in input_property.lower() and spacy_label in deathdate_spacy_labellist:
-            output_property = "deathdate"
+            output_property = "death_date"
             output_property_found = True
             break
 
-    #DEATHPLACE
+    #DEATH_PLACE
     deathplace_wordlist = ['die','died','death']
     deathplace_spacy_labellist = ['GPE','LOC']
     for word in deathplace_wordlist:
         if word in input_property.lower() and spacy_label in deathplace_spacy_labellist:
-            output_property = "deathplace"
+            output_property = "death_place"
+            output_property_found = True
+            break
+
+    #DEATH_CAUSE
+    deathcause_wordlist = ['die of','died of','death of']
+    deathcause_spacy_labellist = ['X']
+    for word in deathcause_wordlist:
+        if word in input_property.lower() and spacy_label in deathcause_spacy_labellist:
+            output_property = "death_cause"
+            output_property_found = True
+            break
+
+    #GRADUATED_PLACE
+    graduatedplace_wordlist = ['graduated', 'graduate']
+    graduatedplace_spacy_labellist = ['GPE','LOC','ORG']
+    for word in graduatedplace_wordlist:
+        if word in input_property.lower() and spacy_label in graduatedplace_spacy_labellist:
+            output_property = "graduated_place"
+            output_property_found = True
+            break
+
+    #GRADUATED_DATE
+    graduateddate_wordlist = ['graduated', 'graduate']
+    graduateddate_spacy_labellist = ['DATE']
+    for word in graduateddate_wordlist:
+        if word in input_property.lower() and spacy_label in graduateddate_spacy_labellist:
+            output_property = "graduated_date"
+            output_property_found = True
+            break
+
+    #married_DATE
+    marrieddate_wordlist = ['married', 'marry']
+    marrieddate_spacy_labellist = ['DATE']
+    for word in marrieddate_wordlist:
+        if word in input_property.lower() and spacy_label in marrieddate_spacy_labellist:
+            output_property = "married_date"
             output_property_found = True
             break
 
