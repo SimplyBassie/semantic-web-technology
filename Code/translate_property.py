@@ -66,12 +66,30 @@ def translate_property(input_property):
             output_property_found = True
             break
 
-    #married_DATE
+    #MARRIED_DATE
     marrieddate_wordlist = ['married', 'marry']
     marrieddate_spacy_labellist = ['DATE']
     for word in marrieddate_wordlist:
         if word in input_property.lower() and spacy_label in marrieddate_spacy_labellist:
             output_property = "married_date"
+            output_property_found = True
+            break
+
+    #DIVORCED_DATE
+    divorceddate_wordlist = ['divorced', 'divorce']
+    divorceddate_spacy_labellist = ['DATE']
+    for word in divorceddate_wordlist:
+        if word in input_property.lower() and spacy_label in divorceddate_spacy_labellist:
+            output_property = "divorced_date"
+            output_property_found = True
+            break
+
+    #LIVING_PLACE
+    livingplace_wordlist = ['live', 'lives', 'lived', 'resided', 'reside']
+    livingplace_spacy_labellist = ['GPE','LOC']
+    for word in livingplace_wordlist:
+        if word in input_property.lower() and spacy_label in livingplace_spacy_labellist:
+            output_property = "living_place"
             output_property_found = True
             break
 
