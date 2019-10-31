@@ -15,6 +15,24 @@ def extract_rdf(doc):
                 RDFtriple.append((ent.text, "{} {}".format(ent.root.head, prep), child.text))
     return RDFtriple
 
+def replace_sentences(sentencelist):
+    sentencelist2 = []
+    for sentence in sentencelist:
+        sentence = " "+sentence.strip() + " "
+        new_sentence = sentence
+        doc = nlp(sentence)
+        for e in doc.ents:
+            if e.label_ == "PERSON":
+                replacement = e.text
+        for word in sentence.split():
+            if word.lower() in ["he","she"]:
+                try:
+                    new_sentence = sentence.replace(" "+word+" ", " "+replacement+" ")
+                except:
+                    pass
+        sentencelist2.append(new_sentence.strip())
+    return sentencelist2
+
 
 html_page = """
 <head>
@@ -50,13 +68,18 @@ with open('../Texts/wilson.txt') as text:
     sentences = text.read()
     sentences = sentences.strip()
     sentencelist = sentences.split(".")
+    replaced_sentencelist = replace_sentences(sentencelist)
+    print(replaced_sentencelist)
+    sentence_index = 0
+    entity_colored = False
     for sentence in sentencelist:
         rdftriplefound = False
         sentence = sentence.strip()
+        replaced_sentence = replaced_sentencelist[sentence_index]
         if len(sentence) < 4:
             pass
         else:
-            doc = nlp(sentence)
+            doc = nlp(replaced_sentence)
             nounchunklist = [str(chunk.text).strip() for chunk in doc.noun_chunks]
             entitylist = []
             labeldic = {}
@@ -86,7 +109,19 @@ with open('../Texts/wilson.txt') as text:
                 print("\n" + sentence)
                 print(entity, property, property_value)
                 old_sentence = sentence
-                sentence = sentence.replace(entity, "<font color='red'>{}</font>".format(entity))
+                sentence2 = sentence.replace(entity, "<font color='red'>{}</font>".format(entity))
+                if sentence2 != sentence:
+                    entity_colored = True
+                else:
+                    entity_colored = False
+                sentence = sentence2
+                if not entity_colored:
+                    sentence = " " + sentence + " "
+                    sentence = sentence.replace(" he ", " <font color='red'>{}</font> ".format("he"))
+                    sentence = sentence.replace(" He ", " <font color='red'>{}</font> ".format("He"))
+                    sentence = sentence.replace(" she ", " <font color='red'>{}</font> ".format("she"))
+                    sentence = sentence.replace(" She ", " <font color='red'>{}</font> ".format("She"))
+                    sentence = sentence.strip()
                 if old_property in sentence:
                     sentence = sentence.replace(old_property, "<font color='green'>{}</font>".format(old_property))
                 else:
@@ -107,6 +142,7 @@ with open('../Texts/wilson.txt') as text:
         if not rdftriplefound:
             sentence += "."
             printsentencelist.append(sentence)
+        sentence_index += 1
 
     if printsentencelist[-1] == ".":
         printsentencelist = printsentencelist[:-1]
