@@ -1,32 +1,26 @@
 import spacy
-nlp = spacy.load("en_core_web_sm")
+import webbrowser
 
 def main():
-    with open('../Texts/text.txt') as text:
-        sentences = text.read()
-        sentences = sentences.strip()
-        sentencelist_old = sentences.split(".")
-        sentencelist = replace_sentences(sentencelist_old)
-        for sentence in sentencelist:
-            sentence = sentence.strip()
-            print(sentence)
+    nlp = spacy.load("en")
+    doc = nlp("Thomas Woodrow Wilson was born on December 28, 1856, in Staunton, Virginia.")
+    RDFtriple = extract_rdf(doc)
+    print(RDFtriple)
 
-def replace_sentences(sentencelist):
-    sentencelist2 = []
-    for sentence in sentencelist:
-        new_sentence = sentence
-        doc = nlp(sentence)
-        for e in doc.ents:
-            if e.label_ == "PERSON":
-                replacement = e.text
-        for word in sentence.split():
-            if word.lower() in ["he","she"]:
-                try:
-                    new_sentence = sentence.replace(" "+word+" ", " "+replacement+" ")
-                except:
-                    pass
-        sentencelist2.append(new_sentence)
-    return sentencelist2
-
+def extract_rdf(doc):
+    RDFtriple = []
+    spans = list(doc.ents) + list(doc.noun_chunks)
+    for span in spans:
+        span.merge()
+    for ent in doc.ents:
+        print("entity:", ent.text)
+        preps = [prep for prep in ent.root.head.children]
+        for prep in preps:
+            print("prep:", prep, prep.dep_)
+            for child in prep.children:
+                print(ent.text, "{} {}".format(ent.root.text, prep))
+                property = "{} {}".format(ent.root.head, prep)
+                RDFtriple.append((ent.text, "{} {}".format(ent.root.head, prep), child.text))
+    return RDFtriple
 if __name__ == '__main__':
     main()

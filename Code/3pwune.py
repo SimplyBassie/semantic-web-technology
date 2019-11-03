@@ -12,7 +12,7 @@ def extract_rdf(doc):
         for prep in preps:
             for child in prep.children:
                 property = "{} {}".format(ent.root.head, prep)
-                RDFtriple.append((ent.text, "{} {}".format(ent.root.head, prep), child.text))
+                RDFtriple.append((ent.text, property, child.text))
     return RDFtriple
 
 def replace_sentences(sentencelist):
