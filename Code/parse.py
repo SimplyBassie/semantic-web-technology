@@ -1,22 +1,9 @@
 import spacy
-nlp = spacy.load("en_core_web_sm")
 
-def main():
-    with open('../Texts/wilson.txt') as text:
-        sentences = text.read()
-        sentences = sentences.strip()
-        sentencelist = sentences.split(".")
-        sentencelist.append("Mark Bruijn was a member of The Losers and he was born in 1992.")
-        for sentence in sentencelist:
-            triple = extract_is_a_rdf_triple(sentence) 
-            if triple:
-                print(triple)
-
-def extract_is_a_rdf_triple(sentence): 
+def extract_is_a_rdf_triple(doc):
     tokenlist = []
     entitylist = []
     chunklist = []
-    doc = nlp(sentence)
 
     for ent in doc.ents:
         if ent.label_ == "PERSON":
@@ -45,6 +32,3 @@ def extract_is_a_rdf_triple(sentence):
             return((entitylist[0],tokenlist[0]+" "+tokenlist[1],tokenlist[2]+" "+chunklist[0]))
         else:
             return((entitylist[0],tokenlist[0]+" "+tokenlist[1],tokenlist[2]))
-
-if __name__ == '__main__':
-    main()

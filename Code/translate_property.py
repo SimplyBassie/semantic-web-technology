@@ -93,6 +93,14 @@ def translate_property(input_property):
             output_property_found = True
             break
 
+    #INSTANCE_OF
+    is_a_wordlist = ['is a', 'was a', 'is an', 'was an']
+    for word in is_a_wordlist:
+        if word in input_property.lower():
+            output_property = "instance_of"
+            output_property_found = True
+            break
+
 
 
     if output_property_found:

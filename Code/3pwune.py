@@ -1,9 +1,10 @@
 import spacy
 import webbrowser
 from translate_property import translate_property
+from parse import extract_is_a_rdf_triple
 
 def extract_rdf(doc):
-    RDFtriple = []
+    RDFtriplelist = []
     spans = list(doc.ents) + list(doc.noun_chunks)
     for span in spans:
         span.merge()
@@ -12,8 +13,8 @@ def extract_rdf(doc):
         for prep in preps:
             for child in prep.children:
                 property = "{} {}".format(ent.root.head, prep)
-                RDFtriple.append((ent.text, property, child.text))
-    return RDFtriple
+                RDFtriplelist.append((ent.text, property, child.text))
+    return RDFtriplelist
 
 def replace_sentences(sentencelist):
     sentencelist2 = []
@@ -69,7 +70,6 @@ with open('../Texts/wilson.txt') as text:
     sentences = sentences.strip()
     sentencelist = sentences.split(".")
     replaced_sentencelist = replace_sentences(sentencelist)
-    print(replaced_sentencelist)
     sentence_index = 0
     entity_colored = False
     for sentence in sentencelist:
@@ -91,11 +91,15 @@ with open('../Texts/wilson.txt') as text:
                 lemmadic[str(word)] = str(word.lemma_)
                 if word.label_ == 'PERSON':
                     personlist.append(str(word))
-            RDFtriple = extract_rdf(doc)
-            for triple in RDFtriple:
+            RDFtriplelist = extract_rdf(doc)
+            doc2 = nlp(replaced_sentence)
+            RDFtriple_is_a = extract_is_a_rdf_triple(doc2)
+            if RDFtriple_is_a != None:
+                RDFtriplelist.append(RDFtriple_is_a)
+            for triple in RDFtriplelist:
                 dictje[triple] = sentence + "."
 
-            for entity, property, property_value in RDFtriple:
+            for entity, property, property_value in RDFtriplelist:
                 if property_value in labeldic:
                     label = labeldic[property_value]
                 else:
