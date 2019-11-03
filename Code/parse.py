@@ -1,6 +1,6 @@
 import spacy
 
-def extract_is_a_rdf_triple(doc):
+def extract_instance_of_rdf_triple(doc):
     tokenlist = []
     entitylist = []
     chunklist = []

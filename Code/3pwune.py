@@ -1,7 +1,7 @@
 import spacy
 import webbrowser
 from translate_property import translate_property
-from parse import extract_is_a_rdf_triple
+from parse import extract_instance_of_rdf_triple
 
 def extract_rdf(doc):
     RDFtriplelist = []
@@ -93,9 +93,9 @@ with open('../Texts/wilson.txt') as text:
                     personlist.append(str(word))
             RDFtriplelist = extract_rdf(doc)
             doc2 = nlp(replaced_sentence)
-            RDFtriple_is_a = extract_is_a_rdf_triple(doc2)
-            if RDFtriple_is_a != None:
-                RDFtriplelist.append(RDFtriple_is_a)
+            RDFtriple_instance_of = extract_instance_of_rdf_triple(doc2)
+            if RDFtriple_instance_of != None:
+                RDFtriplelist.append(RDFtriple_instance_of)
             for triple in RDFtriplelist:
                 dictje[triple] = sentence + "."
 
