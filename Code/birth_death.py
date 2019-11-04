@@ -1,25 +1,12 @@
 import spacy
-nlp = spacy.load("en_core_web_sm")
-
-def main():
-
-    with open('../Texts/marshall.txt') as text:
-        sentences = text.read()
-        sentences = sentences.strip()
-        sentencelist = sentences.split(".")
-        for sentence in sentencelist:
-
-            bd = birth_death(sentence)
-            print(bd)
 
 
-def birth_death(sentence):
+def birth_death(sentence, doc):
     entitylist = []
     chunklist = []
     datelist = []
     finallist = []
     finallist2 = []
-    doc = nlp(sentence)
     person_date = ""
     for ent in doc.ents:
         if ent.label_ == "PERSON":
@@ -38,20 +25,14 @@ def birth_death(sentence):
         finallist.append(person_date)
 
 
-        birthy = " ".join((person_date.split(" ")[:-1]))
-        birthy += " birth_year " + person_date.split(" ")[-1][1:5] 
+        entity = " ".join((person_date.split(" ")[:-1]))
 
-        deathy = " ".join((person_date.split(" ")[:-1]))
-        deathy += " death_year " + person_date.split(" ")[-1][-5:-1]
+        RDFtriple = (entity, 'born in (DATE)', person_date.split(" ")[-1][1:5])
+        RDFtriple2 = (entity, 'died in (DATE)', person_date.split(" ")[-1][-5:-1])
 
-        finallist2.append(birthy)
-        finallist2.append(deathy)
+        finallist2.append(RDFtriple)
+        finallist2.append(RDFtriple2)
 
 
     finallist2 = list(set(finallist2))
     return finallist2
-
-        
-
-if __name__ == '__main__':
-    main()

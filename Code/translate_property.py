@@ -106,4 +106,4 @@ def translate_property(input_property):
     if output_property_found:
         return True, output_property
     else:
-        return False, 'XXX'+input_property+'XXX'
+        return False, input_property.split("(")[0].strip()
